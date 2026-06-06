@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KH90 Store - Admin Panel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1e1e1e;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        .upload-form {
+            background-color: #2d2d2d;
+            max-width: 400px;
+            margin: 30px auto;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        h2 { color: #ffca28; margin-bottom: 20px; }
+        label {
+            display: block;
+            text-align: left;
+            margin: 10px 0 5px 0;
+            font-weight: bold;
+            color: #ccc;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+            border: 1px solid #444;
+            background-color: #121212;
+            color: white;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            background-color: #ffca28;
+            color: black;
+            border: none;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        button:hover { background-color: #e6b417; }
+        #status-msg { margin-top: 15px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="upload-form">
+        <h2>KH90 Admin Panel</h2>
+        <p style="color: #aaa; font-size: 14px;">ਇੱਥੋਂ ਨਵੀਂ ਐਪ ਸਿੱਧੀ ਸਟੋਰ ਵਿੱਚ ਐਡ ਕਰੋ</p>
+        
+        <form id="appForm">
+            <label>ਐਪ ਦਾ ਨਾਮ (App Name)</label>
+            <input type="text" id="appName" placeholder="ਜਿਵੇਂ: KH90 Car Game" required>
+
+            <label>ਐਪ ਆਈਕਨ ਲਿੰਕ (Icon URL)</label>
+            <input type="url" id="appIcon" placeholder="https://example.com/logo.png" required>
+
+            <label>ਡਾਊਨਲੋਡ ਲਿੰਕ (Download URL)</label>
+            <input type="url" id="appLink" placeholder="https://vercel.com/your-game-link" required>
+
+            <label>ਐਪ ਬਾਰੇ ਜਾਣਕਾਰੀ (Description)</label>
+            <textarea id="appDesc" rows="3" placeholder="ਇਸ ਐਪ ਬਾਰੇ ਕੁਝ ਲਿਖੋ..." required></textarea>
+
+            <button type="submit">Upload App to Store</button>
+        </form>
+
+        <p id="status-msg"></p>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // ਤੁਹਾਡੇ ਫਾਇਰਬੇਸ ਪ੍ਰੋਜੈਕਟ ਦੀ ਅਸਲੀ ਸੈਟਿੰਗ ਇੱਥੇ ਸੈੱਟ ਕਰ ਦਿੱਤੀ ਗਈ ਹੈ 
+        const firebaseConfig = {
+          apiKey: "AIzaSyAyFSQJSx7SsFYTbfRAEuNxWfeO2jTmv6Q",
+          authDomain: "my-store1-1093c.firebaseapp.com",
+          projectId: "my-store1-1093c",
+          storageBucket: "my-store1-1093c.firebasestorage.app",
+          messagingSenderId: "1095213665187",
+          appId: "1:1095213665187:web:653cd17020c533583ca816",
+          measurementId: "G-01QMD8PT02"
+        };
+
+        // Firebase ਨੂੰ ਸ਼ੁਰੂ ਕਰੋ
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // ਫਾਰਮ ਸਬਮਿਟ ਹੋਣ 'ਤੇ ਚੱਲਣ ਵਾਲਾ ਫੰਕਸ਼ਨ
+        document.getElementById('appForm').addEventListener('submit', async (e) => {
+            e.preventDefault(); // ਪੇਜ ਨੂੰ ਰਿਫ੍ਰੈਸ਼ ਹੋਣ ਤੋਂ ਰੋਕੋ
+
+            const statusMsg = document.getElementById('status-msg');
+            statusMsg.style.color = "#ffca28";
+            statusMsg.innerText = "ਐਪ ਅਪਲੋਡ ਹੋ ਰਹੀ ਹੈ...";
+
+            // ਇਨਪੁਟ ਫੀਲਡਸ ਤੋਂ ਡੇਟਾ ਲੈਣਾ
+            const name = document.getElementById('appName').value;
+            const icon = document.getElementById('appIcon').value;
+            const downloadUrl = document.getElementById('appLink').value;
+            const description = document.getElementById('appDesc').value;
+
+            try {
+                // ਫਾਇਰਬੇਸ ਦੇ 'apps' ਕਲੈਕਸ਼ਨ ਵਿੱਚ ਡੇਟਾ ਸੇਵ ਕਰਨਾ
+                await addDoc(collection(db, "apps"), {
+                    name: name,
+                    icon: icon,
+                    downloadUrl: downloadUrl,
+                    description: description,
+                    uploadedAt: new Date() // ਅਪਲੋਡ ਕਰਨ ਦਾ ਸਮਾਂ
+                });
+
+                statusMsg.style.color = "#4caf50";
+                statusMsg.innerText = "🚀 ਐਪ ਸਫਲਤਾਪੂਰਵਕ ਸਟੋਰ ਵਿੱਚ ਲਾਈਵ ਹੋ ਗਈ ਹੈ!";
+                
+                // ਫਾਰਮ ਨੂੰ ਖਾਲੀ ਕਰਨਾ
+                document.getElementById('appForm').reset();
+
+            } catch (error) {
+                console.error("Error uploading app: ", error);
+                statusMsg.style.color = "#f44336";
+                statusMsg.innerText = "❌ ਅਪਲੋਡ ਕਰਨ ਵਿੱਚ ਕੋਈ ਗੜਬੜ ਹੋਈ ਹੈ।";
+            }
+        });
+    </script>
+</body>
+</html>
