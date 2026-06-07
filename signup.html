@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - KH90 Store</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #121212; color: white; padding: 20px; display: flex; justify-content: center; align-content: center; height: 90vh; }
+        .signup-container { width: 100%; max-width: 380px; background: #1e1e1e; padding: 30px; border-radius: 8px; box-shadow: 0px 4px 10px rgba(0,0,0,0.5); margin: auto; }
+        h2 { text-align: center; color: #007bff; margin-bottom: 20px; }
+        input, button { width: 100%; padding: 12px; margin: 10px 0; border-radius: 5px; border: none; box-sizing: border-box; font-size: 15px; }
+        input { background: #333; color: white; }
+        .btn-signup { background: #007bff; color: white; cursor: pointer; font-weight: bold; }
+        .btn-signup:hover { background: #0056b3; }
+        p { text-align: center; font-size: 14px; color: #aaa; }
+        a { color: #007bff; text-decoration: none; font-weight: bold; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+<div class="signup-container">
+    <h2>Create Account</h2>
+    
+    <form id="signupForm">
+        <input type="email" id="signupEmail" placeholder="Email Address" required>
+        <input type="password" id="signupPassword" placeholder="Create Password (Min 6 chars)" required>
+        <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+        <button type="submit" class="btn-signup">Sign Up</button>
+    </form>
+
+    <p style="margin-top: 20px;">Already have an account? <a href="login.html">Login Here</a></p>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+    // ਤੁਹਾਡੀ ਅਸਲੀ ਕਨਫਿਗਰੇਸ਼ਨ
+    const firebaseConfig = {
+        apiKey: "AIzaSyAyFSQJSx7SsFYTbfRAEuNxWfeO2jTmv6Q",
+        authDomain: "my-store1-1093c.firebaseapp.com",
+        projectId: "my-store1-1093c",
+        storageBucket: "my-store1-1093c.firebasestorage.app",
+        messagingSenderId: "1095213665187",
+        appId: "1:1095213665187:web:653cd17020c533583ca816",
+        measurementId: "G-01QMD8PT02"
+    };
+
+    // Firebase ਇਨੀਸ਼ੀਅਲਾਈਜ਼ ਕਰੋ
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // ਜੇਕਰ ਯੂਜ਼ਰ ਪਹਿਲਾਂ ਤੋਂ ਲੌਗ-ਇਨ ਹੈ, ਤਾਂ ਸਿੱਧਾ ਅਪਲੋਡ ਪੇਜ 'ਤੇ ਭੇਜੋ
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            window.location.href = "upload.html";
+        }
+    });
+
+    // ਰਜਿਸਟ੍ਰੇਸ਼ਨ ਫੰਕਸ਼ਨ
+    const signupForm = document.getElementById('signupForm');
+    signupForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const email = document.getElementById('signupEmail').value;
+        const password = document.getElementById('signupPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+
+        // ਪਾਸਵਰਡ ਮੈਚ ਚੈੱਕ ਕਰੋ
+        if (password !== confirmPassword) {
+            alert("Passwords do not match!");
+            return;
+        }
+
+        // ਫਾਇਰਬੇਸ ਦੇ ਨਿਯਮ ਮੁਤਾਬਕ ਪਾਸਵਰਡ ਘੱਟੋ-ਘੱਟ 6 ਅੱਖਰਾਂ ਦਾ ਹੋਣਾ ਚਾਹੀਦਾ ਹੈ
+        if (password.length < 6) {
+            alert("Password should be at least 6 characters long!");
+            return;
+        }
+
+        try {
+            // ਫਾਇਰਬੇਸ ਵਿੱਚ ਨਵਾਂ ਯੂਜ਼ਰ ਬਣਾਉਣਾ
+            await createUserWithEmailAndPassword(auth, email, password);
+            alert("Account Created Successfully!");
+            window.location.href = "upload.html"; // ਅਪਲੋਡ ਪੇਜ 'ਤੇ ਭੇਜੋ
+        } catch (error) {
+            console.error("Signup Error: ", error);
+            alert("Error: " + error.message);
+        }
+    });
+</script>
+
+</body>
+</html>

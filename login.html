@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - KH90 Store</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #121212; color: white; padding: 20px; display: flex; justify-content: center; align-content: center; height: 90vh; }
+        .login-container { width: 100%; max-width: 380px; background: #1e1e1e; padding: 30px; border-radius: 8px; box-shadow: 0px 4px 10px rgba(0,0,0,0.5); margin: auto; }
+        h2 { text-align: center; color: #007bff; margin-bottom: 20px; }
+        input, button { width: 100%; padding: 12px; margin: 10px 0; border-radius: 5px; border: none; box-sizing: border-box; font-size: 15px; }
+        input { background: #333; color: white; }
+        .btn-email { background: #007bff; color: white; cursor: pointer; font-weight: bold; }
+        .btn-email:hover { background: #0056b3; }
+        
+        /* ਗੂਗਲ ਬਟਨ ਸਟਾਈਲ */
+        .btn-google { background: #white; color: #000; background-color: #ffffff; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn-google:hover { background: #e6e6e6; }
+        
+        .divider { text-align: center; margin: 15px 0; color: #777; font-size: 14px; position: relative; }
+        .divider::before, .divider::after { content: ""; position: absolute; top: 50%; width: 40%; height: 1px; background: #444; }
+        .divider::before { left: 0; }
+        .divider::after { right: 0; }
+
+        p { text-align: center; font-size: 14px; color: #aaa; }
+        a { color: #007bff; text-decoration: none; font-weight: bold; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+    <h2>Login to KH90 Store</h2>
+    
+    <form id="loginForm">
+        <input type="email" id="loginEmail" placeholder="Email Address" required>
+        <input type="password" id="loginPassword" placeholder="Password" required>
+        <button type="submit" class="btn-email">Login with Email</button>
+    </form>
+
+    <div class="divider">OR</div>
+
+    <button id="googleBtn" class="btn-google">
+        <img src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/web-24dp/logo_googleg_color_24dp.png" alt="Google Logo" width="18">
+        Sign in with Google
+    </button>
+
+    <p style="margin-top: 20px;">Don't have an account? <a href="signup.html">Sign Up Here</a></p>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+    // ਤੁਹਾਡੀ ਅਸਲੀ ਕਨਫਿਗਰੇਸ਼ਨ ਜੋ ਤੁਸੀਂ ਹੁਣੇ ਦਿੱਤੀ ਹੈ
+    const firebaseConfig = {
+        apiKey: "AIzaSyAyFSQJSx7SsFYTbfRAEuNxWfeO2jTmv6Q",
+        authDomain: "my-store1-1093c.firebaseapp.com",
+        projectId: "my-store1-1093c",
+        storageBucket: "my-store1-1093c.firebasestorage.app",
+        messagingSenderId: "1095213665187",
+        appId: "1:1095213665187:web:653cd17020c533583ca816",
+        measurementId: "G-01QMD8PT02"
+    };
+
+    // Firebase ਇਨੀਸ਼ੀਅਲਾਈਜ਼ ਕਰੋ
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const googleProvider = new GoogleAuthProvider();
+
+    // ਜੇਕਰ ਯੂਜ਼ਰ ਪਹਿਲਾਂ ਤੋਂ ਲੌਗ-ਇਨ ਹੈ, ਤਾਂ ਸਿੱਧਾ ਅਪਲੋਡ ਪੇਜ 'ਤੇ ਭੇਜੋ
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            window.location.href = "upload.html"; // ਤੁਹਾਡੇ ਅਪਲੋਡ ਵਾਲੇ ਪੇਜ ਦਾ ਨਾਮ
+        }
+    });
+
+    // 1. ਈਮੇਲ ਅਤੇ ਪਾਸਵਰਡ ਨਾਲ ਲੌਗ-ਇਨ ਕਰਨ ਦਾ ਫੰਕਸ਼ਨ
+    const loginForm = document.getElementById('loginForm');
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+            alert("Login Successful!");
+            window.location.href = "upload.html";
+        } catch (error) {
+            console.error("Login Error: ", error);
+            alert("Error: " + error.message);
+        }
+    });
+
+    // 2. ਗੂਗਲ (Google Popup) ਨਾਲ ਲੌਗ-ਇਨ ਕਰਨ ਦਾ ਫੰਕਸ਼ਨ
+    const googleBtn = document.getElementById('googleBtn');
+    googleBtn.addEventListener('click', async () => {
+        try {
+            await signInWithPopup(auth, googleProvider);
+            alert("Google Sign-In Successful!");
+            window.location.href = "upload.html";
+        } catch (error) {
+            console.error("Google Login Error: ", error);
+            alert("Google Login Error: " + error.message);
+        }
+    });
+</script>
+
+</body>
+</html>
